@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "CallMeOut",
+  "version": "0.5.0",
+  "description": "Post Pump callouts from Axiom, GMGN, and Padre token pages.",
+  "icons": {
+    "16": "images/callmeout.png",
+    "32": "images/callmeout.png",
+    "48": "images/callmeout.png",
+    "128": "images/callmeout.png"
+  },
+  "permissions": ["cookies", "storage"],
+  "host_permissions": [
+    "https://pump.fun/*",
+    "https://frontend-api-v3.pump.fun/*",
+    "https://axiom.trade/*",
+    "https://gmgn.ai/*",
+    "https://trade.padre.gg/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "options_page": "options.html",
+  "content_scripts": [{
+    "matches": [
+      "https://axiom.trade/*",
+      "https://gmgn.ai/*",
+      "https://trade.padre.gg/*"
+    ],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }, {
+    "matches": ["https://pump.fun/*"],
+    "js": ["pump_bridge.js"],
+    "run_at": "document_idle"
+  }],
+  "web_accessible_resources": [{
+    "resources": ["panel.css", "images/callmeout.png"],
+    "matches": [
+      "https://axiom.trade/*",
+      "https://gmgn.ai/*",
+      "https://trade.padre.gg/*"
+    ]
+  }],
+  "action": {
+    "default_title": "CallMeOut",
+    "default_icon": { "16": "images/callmeout.png", "32": "images/callmeout.png" }
+  }
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CallMeOut · Wallets</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header"><img src="images/callmeout.png" alt="" width="32" height="32"><strong>CallMeOut</strong><span>WALLETS</span></header>
+    <section class="section" aria-label="Wallets">
+      <div id="walletList" class="wallet-list"></div>
+    </section>
+    <form id="importForm" class="import-form" autocomplete="off">
+      <label for="secret">Add a Solana wallet</label>
+      <div class="input-row"><input id="secret" type="password" spellcheck="false" autocomplete="off" placeholder="Paste private key" required><button id="add" type="submit">Add wallet</button></div>
+      <p>Saved in this browser profile. No password required.</p>
+    </form>
+    <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+  </main>
+  <dialog id="legacyDialog" aria-labelledby="legacyTitle">
+    <form id="legacyForm">
+      <h2 id="legacyTitle">Move wallet to password-free storage</h2>
+      <p>Enter the old passphrase once to migrate this wallet.</p>
+      <input id="legacyPassphrase" type="password" autocomplete="off" placeholder="Previous passphrase" required>
+      <div class="dialog-actions"><button id="legacyCancel" type="button">Cancel</button><button id="legacySubmit" type="submit">Migrate</button></div>
+    </form>
+  </dialog>
+  <script src="options.js"></script>
+</body>
+</html>
