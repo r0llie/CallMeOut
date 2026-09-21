@@ -89,26 +89,42 @@
     if (host === "axiom.trade") {
       const label = candidate("Make a callout");
       const button = label?.closest("button");
-      return button?.parentElement || null;
+      return button?.parentElement ? { node: button.parentElement, hide: true } : null;
     }
     if (host === "gmgn.ai") {
+      const calloutLabels = [...document.querySelectorAll("span")].filter(el => {
+        const rect = el.getBoundingClientRect();
+        return el.textContent?.trim() === "Callout" && rect.width > 0 && rect.x > innerWidth - 340;
+      });
+      for (const label of calloutLabels) {
+        let row = label;
+        while (row?.parentElement) {
+          const rect = row.getBoundingClientRect();
+          const border = parseFloat(getComputedStyle(row).borderBottomWidth);
+          if (rect.width >= 250 && rect.width <= 500 && rect.height >= 40 && rect.height <= 180 && border > 0) return { node: row, hide: true };
+          row = row.parentElement;
+        }
+      }
       const sections = ["Basic Data", "Token Audit", "Pool Info"];
       const leaves = [...document.querySelectorAll("span,div,button,h2,h3")].filter(el => {
         const rect = el.getBoundingClientRect();
-        return sections.includes(el.textContent?.trim()) && rect.width > 0 && rect.x > innerWidth * .58;
+        const value = el.textContent?.trim() || "";
+        return sections.some(name => value.startsWith(name) && value.length <= name.length + 8) && rect.width > 0 && rect.x > innerWidth - 340;
       });
-      leaves.sort((a, b) => sections.indexOf(a.textContent.trim()) - sections.indexOf(b.textContent.trim()) || a.getBoundingClientRect().width - b.getBoundingClientRect().width);
+      const priority = el => sections.findIndex(name => el.textContent.trim().startsWith(name));
+      leaves.sort((a, b) => priority(a) - priority(b) || a.textContent.length - b.textContent.length);
       const label = leaves[0];
       let section = label;
       while (section?.parentElement) {
         const rect = section.getBoundingClientRect();
-        if (rect.width >= 250 && rect.width <= 500 && rect.height >= 25) return section;
+        if (rect.width >= 250 && rect.width <= 500 && rect.height >= 25) return { node: section, hide: false };
         section = section.parentElement;
       }
       return null;
     }
     const label = candidate("Token Data & Security");
-    return label?.closest(".MuiAccordion-root") || label?.closest('[class*="Accordion-root"]') || null;
+    const node = label?.closest(".MuiAccordion-root") || label?.closest('[class*="Accordion-root"]');
+    return node ? { node, hide: false } : null;
   }
   function solidBackground(element) {
     for (let current = element; current; current = current.parentElement) {
@@ -137,22 +153,23 @@
       root.style.setProperty("--cm-accent-ink", getComputedStyle(buy).color);
     }
   }
-  let mountedNode = null;
+  let mountedPlacement = null;
   let mountedDisplay = "";
   function place() {
     if (!relevant()) {
-      if (mountedNode && host === "axiom.trade") mountedNode.style.display = mountedDisplay;
-      mountedNode = null;
+      if (mountedPlacement?.hide) mountedPlacement.node.style.display = mountedDisplay;
+      mountedPlacement = null;
       root.remove();
       return;
     }
-    const node = mountedNode?.isConnected ? mountedNode : anchor();
+    const placement = mountedPlacement?.node.isConnected ? mountedPlacement : anchor();
+    const node = placement?.node;
     if (!node?.parentElement) return;
-    if (node !== mountedNode) mountedDisplay = node.style.display;
-    mountedNode = node;
+    if (node !== mountedPlacement?.node) mountedDisplay = node.style.display;
+    mountedPlacement = placement;
     if (root.parentElement !== node.parentElement || root.nextElementSibling !== node) node.parentElement.insertBefore(root, node);
     applyTheme(node);
-    if (host === "axiom.trade") node.style.display = "none";
+    if (placement.hide) node.style.display = "none";
   }
   async function walletList() {
     const info = await request("WALLETS");

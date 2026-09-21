@@ -26,7 +26,7 @@ The key is entered only on the extension's own page. The extension sends the log
 
 ## Posting
 
-The composer reads the Solana token mint from the page. Axiom URLs can contain a pair address, so the extension reads the actual mint from the page's Pump link. GMGN's token path and `?chain=sol&token=...` URL both work; the composer sits above **Basic Data**. Pump's `/callout/eligibility/{mint}` response determines posting eligibility for the selected wallet; a balance shown by a trading site may belong to another wallet.
+The composer reads the Solana token mint from the page. Axiom URLs can contain a pair address, so the extension reads the actual mint from the page's Pump link. GMGN's token path and `?chain=sol&token=...` URL both work. On GMGN, the composer replaces the native Callout row when present and otherwise sits above **Basic Data**. Pump's `/callout/eligibility/{mint}` response determines posting eligibility for the selected wallet; a balance shown by a trading site may belong to another wallet.
 
 Write a callout, press the send icon, review it, then press **Publish on Pump**. Eligibility is checked again before submission. Drafts are saved per token. The extension does not trade or bulk publish.
 
