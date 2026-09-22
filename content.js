@@ -12,27 +12,46 @@
   shadow.append(css);
   const svg = (d, size = 16) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const chevron = svg('<path d="m7 10 5 5 5-5"/>', 14);
-  const sendIcon = svg('<path d="m5 12 14-7-4 14-3-6-7-1Z"/><path d="m12 13 7-8"/>', 16);
   const refreshIcon = svg('<path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.7 9A7 7 0 0 1 18 7l2 5M4 12l2 5a7 7 0 0 0 12.3-2"/>', 15);
+  const arrowIcon = svg('<path d="M5 12h14"/><path d="m14 7 5 5-5 5"/>', 15);
+  const capsuleIcon = svg('<path d="M8.3 5.3a4.25 4.25 0 0 1 6 0l4.4 4.4a4.25 4.25 0 0 1-6 6l-4.4-4.4a4.25 4.25 0 0 1 0-6Z"/><path d="m10.5 13.5 6-6"/>', 18);
   const settingsIcon = svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-2 2-.06-.06A1.7 1.7 0 0 0 15.87 18a1.7 1.7 0 0 0-1.2 1.6V20h-4v-.4A1.7 1.7 0 0 0 9.47 18a1.7 1.7 0 0 0-1.87.34l-.06.06-2-2 .06-.06A1.7 1.7 0 0 0 6 14.47 1.7 1.7 0 0 0 4.4 13.3H4v-4h.4A1.7 1.7 0 0 0 6 8.1a1.7 1.7 0 0 0-.4-1.87l-.06-.06 2-2 .06.06A1.7 1.7 0 0 0 9.47 4a1.7 1.7 0 0 0 1.2-1.6V2h4v.4A1.7 1.7 0 0 0 15.87 4a1.7 1.7 0 0 0 1.87-.34l.06-.06 2 2-.06.06A1.7 1.7 0 0 0 19.4 7.5 1.7 1.7 0 0 0 21 8.7h.4v4H21a1.7 1.7 0 0 0-1.6 1.2Z"/>', 15);
   const view = document.createElement("section");
   view.className = "composer";
   view.setAttribute("aria-label", "CallMeOut composer");
   view.innerHTML = `
     <header class="top">
-      <div class="identity"><img class="logo" src="${chrome.runtime.getURL("images/callmeout.png")}" alt=""><span class="wordmark">CallMeOut</span><span class="token" id="token"></span></div>
-      <button class="wallet-button" id="walletButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="walletName">Wallet</span>${chevron}</button>
+      <div class="identity"><img class="logo" src="${chrome.runtime.getURL("images/callmeout.png")}" alt=""><span class="wordmark">CallMe<span>Out</span></span></div>
+      <button class="wallet-button" id="walletButton" type="button" aria-haspopup="true" aria-expanded="false"><span class="wallet-glyph">${svg('<path d="M7 7.5h10A2.5 2.5 0 0 1 19.5 10v7A2.5 2.5 0 0 1 17 19.5H6A2.5 2.5 0 0 1 3.5 17V7A2.5 2.5 0 0 1 6 4.5h9"/><path d="M15.5 12h4v4h-4a2 2 0 0 1 0-4Z"/>', 15)}</span><span id="walletName">Wallet</span>${chevron}</button>
     </header>
     <div class="wallet-menu" id="walletMenu" hidden><div id="walletItems"></div><button class="manage" id="manage" type="button">${settingsIcon}<span>Manage wallets</span></button></div>
+    <nav class="steps" aria-label="Callout steps">
+      <button class="step" data-step="write" type="button">Write</button>
+      <button class="step" data-step="preview" type="button">Preview</button>
+      <button class="step" data-step="publish" type="button">Publish</button>
+    </nav>
     <div class="mint-input" id="mintRow" hidden><label for="mint">Token mint</label><input id="mint" placeholder="Solana mint address" spellcheck="false" autocomplete="off"></div>
-    <div class="entry"><label class="sr-only" for="thesis">Callout text</label><textarea id="thesis" maxlength="2000" placeholder="Write a callout..." rows="2"></textarea><button class="send" id="send" type="button" aria-label="Review callout" title="Review callout" disabled>${sendIcon}</button></div>
+    <div class="pane" id="writePane">
+      <div class="entry"><label class="sr-only" for="thesis">Callout text</label><textarea id="thesis" maxlength="2000" placeholder="Write your callout..." rows="3"></textarea><span class="counter" id="counter">0/2000</span></div>
+      <div class="asset-row"><span class="coin-mark">${capsuleIcon}</span><span class="asset-copy"><strong id="assetSymbol">Token</strong><small>Pump.fun</small></span><span class="asset-mint" id="assetMint"></span></div>
+      <button class="primary" id="send" type="button" disabled><span>Review callout</span>${arrowIcon}</button>
+    </div>
+    <div class="pane review" id="review" hidden>
+      <div class="review-label">Callout preview</div><div class="review-copy" id="reviewCopy"></div>
+      <div class="asset-row compact"><span class="coin-mark">${capsuleIcon}</span><span class="asset-copy"><strong id="reviewSymbol">Token</strong><small>Pump.fun</small></span></div>
+      <div class="review-actions"><button id="edit" type="button">Edit</button><button id="proceed" type="button">Continue ${arrowIcon}</button></div>
+    </div>
+    <div class="pane publish" id="publishPane" hidden>
+      <div class="publish-title"><span class="publish-check">✓</span><span><strong>Ready to publish</strong><small>Your wallet will sign this callout.</small></span></div>
+      <div class="publish-copy" id="publishCopy"></div>
+      <div class="review-actions"><button id="back" type="button">Back</button><button id="confirm" type="button">Publish on Pump</button></div>
+    </div>
     <div class="bottom"><span class="elig" id="elig" data-tone="muted"><span class="state-dot"></span><span id="eligText">Checking eligibility</span></span><button class="refresh" id="refresh" type="button" aria-label="Refresh eligibility" title="Refresh eligibility">${refreshIcon}</button></div>
     <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
-    <div class="review" id="review" hidden><div class="review-head">Review callout</div><div class="review-copy" id="reviewCopy"></div><div class="review-actions"><button id="edit" type="button">Edit</button><button id="confirm" type="button">Publish on Pump</button></div></div>
   `;
   shadow.append(view);
   const $ = id => shadow.getElementById(id);
-  const state = { mint: "", symbol: "", wallet: "pump", signedIn: false, eligible: false, loading: false, draftTimer: null, page: "" };
+  const state = { mint: "", symbol: "", wallet: "pump", address: "", signedIn: false, eligible: false, loading: false, draftTimer: null, page: "", step: "write" };
   const short = value => value ? `${value.slice(0, 4)}…${value.slice(-4)}` : "";
   async function request(type, extra = {}) {
     const result = await chrome.runtime.sendMessage({ type, ...extra });
@@ -51,7 +70,30 @@
     updateSend();
   }
   function updateSend() {
-    $("send").disabled = state.loading || !state.eligible || !$("thesis").value.trim();
+    const empty = !$("thesis").value.trim();
+    $("send").disabled = empty;
+    $("proceed").disabled = state.loading || !state.eligible || empty;
+    $("confirm").disabled = state.loading || !state.eligible || empty;
+  }
+  function setStep(step) {
+    if (step !== "write" && !$("thesis").value.trim()) step = "write";
+    const order = { write: 0, preview: 1, publish: 2 };
+    view.dataset.direction = order[step] >= order[state.step] ? "forward" : "back";
+    state.step = step;
+    $("writePane").hidden = step !== "write";
+    $("review").hidden = step !== "preview";
+    $("publishPane").hidden = step !== "publish";
+    shadow.querySelectorAll(".step").forEach(button => {
+      const active = button.dataset.step === step;
+      button.dataset.active = String(active);
+      button.setAttribute("aria-current", active ? "step" : "false");
+    });
+  }
+  function updateCopy() {
+    const value = $("thesis").value;
+    $("counter").textContent = `${value.length}/2000`;
+    $("reviewCopy").textContent = value.trim();
+    $("publishCopy").textContent = value.trim();
   }
   function findMint() {
     const url = new URL(location.href);
@@ -140,6 +182,7 @@
     if (!scope) return;
     const base = solidBackground(slot);
     const text = getComputedStyle(scope).color;
+    root.style.setProperty("--cm-font", getComputedStyle(scope).fontFamily);
     const nativeInput = scope.querySelector("input,textarea") || scope.parentElement?.querySelector("input,textarea");
     const field = nativeInput ? solidBackground(nativeInput) : base;
     const buttons = scope.parentElement ? [...scope.querySelectorAll("button"), ...scope.parentElement.querySelectorAll("button")] : [...scope.querySelectorAll("button")];
@@ -175,7 +218,8 @@
     const info = await request("WALLETS");
     state.wallet = info.selected;
     const selected = info.wallets.find(w => w.address === state.wallet);
-    $("walletName").textContent = state.wallet === "pump" ? "Pump / Phantom" : selected ? `Wallet ${short(selected.address)}` : "Wallet";
+    state.address = state.wallet === "pump" ? "" : selected?.address || "";
+    $("walletName").textContent = state.address ? short(state.address) : state.wallet === "pump" ? "Pump / Phantom" : "Wallet";
     const items = $("walletItems");
     items.replaceChildren();
     const add = (name, address, detail, locked) => {
@@ -183,9 +227,14 @@
       button.type = "button";
       button.className = "wallet-item";
       button.dataset.active = String(state.wallet === address);
+      button.dataset.address = address;
+      const mark = document.createElement("span"); mark.className = "wallet-item-mark"; mark.textContent = address === "pump" ? "P" : "W";
+      const copy = document.createElement("span"); copy.className = "wallet-item-copy";
       const title = document.createElement("strong"); title.textContent = name;
       const sub = document.createElement("small"); sub.textContent = detail;
-      button.append(title, sub);
+      copy.append(title, sub);
+      const check = document.createElement("span"); check.className = "wallet-check"; check.textContent = state.wallet === address ? "✓" : "";
+      button.append(mark, copy, check);
       button.addEventListener("click", async () => {
         try {
           await request("SELECT_WALLET", { address });
@@ -197,8 +246,8 @@
       });
       items.append(button);
     };
-    add("Pump / Phantom", "pump", info.pumpSignedIn ? "Connected" : "Sign in on Pump", !info.pumpSignedIn);
-    info.wallets.forEach(w => add(`Wallet ${short(w.address)}`, w.address, w.legacy ? "Migration needed" : "Auto sign", w.legacy));
+    add("Pump / Phantom", "pump", info.pumpSignedIn ? "Connected wallet" : "Sign in on Pump", !info.pumpSignedIn);
+    info.wallets.forEach(w => add(short(w.address), w.address, w.legacy ? "Migration needed" : "Imported · Auto sign", w.legacy));
   }
   async function refreshSession() {
     state.eligible = false;
@@ -210,6 +259,15 @@
         setEligibility(state.wallet === "pump" ? "Sign in on Pump" : "Wallet unavailable", "warn");
         setNotice(state.wallet !== "pump" && status.error ? status.error : "", "error");
         return;
+      }
+      state.address = status.address || (state.wallet !== "pump" ? state.wallet : "");
+      if (state.address) {
+        $("walletName").textContent = short(state.address);
+        const selectedItem = shadow.querySelector(`.wallet-item[data-address="${state.wallet}"]`);
+        if (selectedItem) {
+          selectedItem.querySelector("strong").textContent = short(state.address);
+          selectedItem.querySelector("small").textContent = state.wallet === "pump" ? "Pump / Phantom" : "Imported · Auto sign";
+        }
       }
       setNotice("");
       await refreshEligibility();
@@ -243,11 +301,16 @@
     const symbol = siteSymbol();
     if (state.page === page && state.mint === mint && state.symbol === symbol) return;
     state.page = page; state.mint = mint; state.symbol = symbol;
-    $("token").textContent = symbol ? `$${symbol}` : "";
+    const label = symbol ? `$${symbol.replace(/^\$/, "")}` : "Token";
+    $("assetSymbol").textContent = label;
+    $("reviewSymbol").textContent = label;
+    $("assetMint").textContent = mint ? short(mint) : "";
     $("mintRow").hidden = !!mint;
     $("mint").value = mint;
     const draft = await chrome.storage.local.get(`draft:${mint}`);
     $("thesis").value = draft[`draft:${mint}`] || "";
+    updateCopy();
+    setStep("write");
     updateSend();
     if (state.signedIn) await refreshEligibility();
   }
@@ -260,22 +323,32 @@
   $("refresh").addEventListener("click", () => { walletList().then(refreshSession).catch(error => setNotice(error.message, "error")); });
   $("mint").addEventListener("change", () => { state.mint = $("mint").value.trim(); refreshEligibility(); });
   $("thesis").addEventListener("input", () => {
+    updateCopy();
     updateSend();
     clearTimeout(state.draftTimer);
     if (BASE58.test(state.mint)) state.draftTimer = setTimeout(() => chrome.storage.local.set({ [`draft:${state.mint}`]: $("thesis").value }), 350);
   });
   $("send").addEventListener("click", () => {
     if ($("send").disabled) return;
-    $("reviewCopy").textContent = $("thesis").value.trim();
-    $("review").hidden = false;
+    updateCopy();
+    setStep("preview");
   });
-  $("edit").addEventListener("click", () => { $("review").hidden = true; $("thesis").focus(); });
+  $("edit").addEventListener("click", () => { setStep("write"); $("thesis").focus(); });
+  $("proceed").addEventListener("click", () => setStep("publish"));
+  $("back").addEventListener("click", () => setStep("preview"));
+  shadow.querySelectorAll(".step").forEach(button => button.addEventListener("click", () => {
+    if (button.dataset.step === "publish" && !state.eligible) return;
+    setStep(button.dataset.step);
+  }));
   $("confirm").addEventListener("click", async () => {
+    if (state.loading || !state.eligible || !$("thesis").value.trim()) return;
     const button = $("confirm");
     button.disabled = true; button.textContent = "Publishing…";
     try {
       const result = await request("PUBLISH", { mint: state.mint, wallet: state.wallet, thesis: $("thesis").value.trim() });
-      $("review").hidden = true;
+      setStep("write");
+      $("thesis").value = "";
+      updateCopy();
       setNotice("Callout published.", "success");
       const id = result.callout?.calloutId;
       if (id) {
@@ -286,11 +359,11 @@
       }
       await chrome.storage.local.remove(`draft:${state.mint}`);
       await refreshEligibility();
-    } catch (error) { $("review").hidden = true; setNotice(error.message, "error"); }
+    } catch (error) { setStep("preview"); setNotice(error.message, "error"); }
     finally { button.disabled = false; button.textContent = "Publish on Pump"; }
   });
   shadow.addEventListener("keydown", event => {
-    if (event.key === "Escape") { $("review").hidden = true; $("walletMenu").hidden = true; $("walletButton").setAttribute("aria-expanded", "false"); }
+    if (event.key === "Escape") { setStep("write"); $("walletMenu").hidden = true; $("walletButton").setAttribute("aria-expanded", "false"); }
   });
   chrome.runtime.onMessage.addListener(message => {
     if (message?.type === "FOCUS_COMPOSER") {
@@ -307,6 +380,6 @@
     setTimeout(() => { scheduled = false; place(); updatePage(); }, 320);
   });
   observer.observe(document.documentElement, { subtree: true, childList: true });
-  place(); updatePage(); walletList().then(refreshSession).catch(error => setNotice(error.message, "error"));
+  setStep("write"); place(); updatePage(); walletList().then(refreshSession).catch(error => setNotice(error.message, "error"));
   setInterval(() => { place(); updatePage(); }, 1200);
 })();
