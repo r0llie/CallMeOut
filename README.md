@@ -12,6 +12,8 @@ Write Pump callouts directly in the trading panel on Axiom, GMGN, and Padre Sola
 
 The composer reads the token mint from the page, checks Pump eligibility, and keeps a draft per token. Review your text and press **Publish on Pump** to submit it. Nothing is published automatically.
 
+For Chrome Web Store submission, run `python pack_webstore.py` to create `CallMeOut-WebStore.zip` with the manifest at the archive root. [Store artwork and listing copy](store-assets/README.md) and the [privacy policy](PRIVACY.md) are included in this repository.
+
 Use your current Pump / Phantom browser session, or add a Solana private key in **CallMeOut → Wallets**. Imported wallets sign the Pump login message automatically. See [extension setup and wallet details](extension/README.md).
 
 ## Python client

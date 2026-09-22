@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
   "name": "CallMeOut",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Post Pump callouts from Axiom, GMGN, and Padre token pages.",
   "icons": {
-    "16": "images/callmeout.png",
-    "32": "images/callmeout.png",
-    "48": "images/callmeout.png",
-    "128": "images/callmeout.png"
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   },
   "permissions": ["cookies", "storage"],
   "host_permissions": [
@@ -42,6 +42,6 @@
   }],
   "action": {
     "default_title": "CallMeOut",
-    "default_icon": { "16": "images/callmeout.png", "32": "images/callmeout.png" }
+    "default_icon": { "16": "images/icon16.png", "32": "images/icon32.png" }
   }
 }

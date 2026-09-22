@@ -1,6 +1,8 @@
 /*
 !/.gitignore
 !/README.md
+!/PRIVACY.md
+!/pack_webstore.py
 !/pump_callout.py
 !/phantom_login.py
 !/test_pump_callout.py
@@ -23,3 +25,17 @@
 !/extension/images/
 /extension/images/*
 !/extension/images/callmeout.png
+!/extension/images/icon16.png
+!/extension/images/icon32.png
+!/extension/images/icon48.png
+!/extension/images/icon128.png
+!/store-assets/
+/store-assets/*
+!/store-assets/README.md
+!/store-assets/LISTING.md
+!/store-assets/promo-small.png
+!/store-assets/promo-marquee.png
+!/store-assets/screenshot-axiom.png
+!/store-assets/screenshot-gmgn.png
+!/store-assets/screenshot-padre.png
+!/store-assets/screenshot-wallets.png
