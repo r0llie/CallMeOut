@@ -4,7 +4,7 @@ Write Pump callouts directly in the trading panel on Axiom, GMGN, and Padre Sola
 
 | Axiom | GMGN | Padre |
 | --- | --- | --- |
-| ![CallMeOut on Axiom](images/axiom-preview.png) | ![CallMeOut on GMGN](images/gmgn-preview.png) | ![CallMeOut on Padre](images/padre-preview.png) |
+| ![CallMeOut on Axiom](images/axiom-preview.pn) | ![CallMeOut on GMGN](images/gmgn-preview.pn) | ![CallMeOut on Padre](images/padre-preview.pn) |
 
 ## Install
 
