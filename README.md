@@ -6,8 +6,6 @@ Write Pump callouts directly in the trading panel on Axiom, GMGN, and Padre Sola
 | --- | --- | --- |
 | ![CallMeOut on Axiom](images/axiom-preview.png) | ![CallMeOut on GMGN](images/gmgn-preview.png) | ![CallMeOut on Padre](images/padre-preview.png) |
 
-[Axiom light theme preview](images/axiom-light-preview.png)
-
 ## Install
 
 1. Open `chrome://extensions` or `edge://extensions` and enable Developer mode.
