@@ -1,4 +1,3 @@
-const API = "https://frontend-api-v3.pump.fun";
 const MINT = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const ALLOWED = new Set(["axiom.trade", "gmgn.ai", "trade.padre.gg"]);
@@ -141,6 +140,44 @@ async function pumpCookie() {
   return (await chrome.cookies.get({ url: "https://pump.fun/", name: "auth_token" }))?.value || null;
 }
 
+async function createPumpTab() {
+  const tab = await chrome.tabs.create({ url: "https://pump.fun/", active: false });
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      chrome.tabs.onUpdated.removeListener(onUpdate);
+      reject(new Error("Pump tab did not load."));
+    }, 20000);
+    function finish() {
+      clearTimeout(timer);
+      chrome.tabs.onUpdated.removeListener(onUpdate);
+      resolve();
+    }
+    function onUpdate(tabId, change) {
+      if (tabId === tab.id && change.status === "complete") finish();
+    }
+    chrome.tabs.onUpdated.addListener(onUpdate);
+    chrome.tabs.get(tab.id).then(current => {
+      if (current.status === "complete") finish();
+    }).catch(reject);
+  });
+  return tab.id;
+}
+
+async function pumpRequest(request) {
+  const tabs = await chrome.tabs.query({ url: "https://pump.fun/*" });
+  for (const tab of tabs.filter(item => item.status === "complete")) {
+    let result;
+    try { result = await chrome.tabs.sendMessage(tab.id, { type: "PUMP_API", request }); }
+    catch { continue; }
+    if (!result?.ok) throw new Error(result?.error || "Pump request failed.");
+    return result.data;
+  }
+  const tabId = await createPumpTab();
+  const result = await chrome.tabs.sendMessage(tabId, { type: "PUMP_API", request });
+  if (!result?.ok) throw new Error(result?.error || "Pump request failed.");
+  return result.data;
+}
+
 async function importedToken(address) {
   const current = sessions.get(address);
   if (current && current.expires > Date.now()) return current.token;
@@ -180,18 +217,7 @@ async function activeToken(walletId) {
 }
 
 async function api(path, token, options = {}) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  try {
-    const response = await fetch(API + path, {
-      method: options.method || "GET", credentials: "omit", signal: controller.signal,
-      headers: { "Accept": "application/json", ...(token ? { "Authorization": `Bearer ${token}` } : {}), ...(options.body ? { "Content-Type": "application/json" } : {}) },
-      body: options.body ? JSON.stringify(options.body) : undefined
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(typeof data.message === "string" ? data.message.slice(0, 220) : `Pump API: ${response.status}`);
-    return data;
-  } finally { clearTimeout(timer); }
+  return pumpRequest({ path, token, method: options.method || "GET", body: options.body });
 }
 
 function eligible(data) {

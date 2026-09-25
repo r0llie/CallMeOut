@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CallMeOut",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Post Pump callouts from Axiom, GMGN, and Padre token pages.",
   "icons": {
     "16": "images/icon16.png",
@@ -12,7 +12,6 @@
   "permissions": ["cookies", "storage"],
   "host_permissions": [
     "https://pump.fun/*",
-    "https://frontend-api-v3.pump.fun/*",
     "https://axiom.trade/*",
     "https://gmgn.ai/*",
     "https://trade.padre.gg/*"
@@ -26,6 +25,10 @@
       "https://trade.padre.gg/*"
     ],
     "js": ["content.js"],
+    "run_at": "document_idle"
+  }, {
+    "matches": ["https://pump.fun/*"],
+    "js": ["pump_bridge.js"],
     "run_at": "document_idle"
   }],
   "web_accessible_resources": [{
