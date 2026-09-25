@@ -141,22 +141,6 @@ async function pumpCookie() {
   return (await chrome.cookies.get({ url: "https://pump.fun/", name: "auth_token" }))?.value || null;
 }
 
-async function pumpTab() {
-  const tabs = await chrome.tabs.query({ url: "https://pump.fun/*" });
-  const existing = tabs.find(tab => tab.status === "complete");
-  if (existing) return existing;
-  const tab = tabs[0] || await chrome.tabs.create({ url: "https://pump.fun/", active: false });
-  await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => { chrome.tabs.onUpdated.removeListener(onUpdate); reject(new Error("Pump tab did not load.")); }, 20000);
-    function onUpdate(tabId, change) {
-      if (tabId !== tab.id || change.status !== "complete") return;
-      clearTimeout(timer); chrome.tabs.onUpdated.removeListener(onUpdate); resolve();
-    }
-    chrome.tabs.onUpdated.addListener(onUpdate);
-  });
-  return tab;
-}
-
 async function importedToken(address) {
   const current = sessions.get(address);
   if (current && current.expires > Date.now()) return current.token;
@@ -175,13 +159,12 @@ async function importedToken(address) {
   const timestamp = Date.now();
   const message = new TextEncoder().encode(`Sign in to pump.fun: ${timestamp}`);
   const signature = base58Encode(new Uint8Array(await crypto.subtle.sign("Ed25519", key, message)));
-  const tab = await pumpTab();
-  const login = await chrome.tabs.sendMessage(tab.id, {
-    type: "PUMP_LOGIN_TOKEN",
-    payload: { address, signature, timestamp, authType: "non_custodial" }
+  const login = await api("/auth/login/token", null, {
+    method: "POST",
+    body: { address, signature, timestamp, authType: "non_custodial" }
   });
-  if (!login?.ok) throw new Error(login?.error || "Pump sign-in failed.");
-  const token = login.token;
+  if (typeof login.access_token !== "string") throw new Error("Pump token response was not recognized.");
+  const token = login.access_token;
   sessions.set(address, { token, expires: Date.now() + 20 * 60 * 1000 });
   return token;
 }
@@ -202,7 +185,7 @@ async function api(path, token, options = {}) {
   try {
     const response = await fetch(API + path, {
       method: options.method || "GET", credentials: "omit", signal: controller.signal,
-      headers: { "Accept": "application/json", "Authorization": `Bearer ${token}`, ...(options.body ? { "Content-Type": "application/json" } : {}) },
+      headers: { "Accept": "application/json", ...(token ? { "Authorization": `Bearer ${token}` } : {}), ...(options.body ? { "Content-Type": "application/json" } : {}) },
       body: options.body ? JSON.stringify(options.body) : undefined
     });
     const data = await response.json().catch(() => ({}));
